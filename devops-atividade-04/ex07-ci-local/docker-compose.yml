@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Registry Docker privado local
+  registry:
+    image: registry:2
+    container_name: ex07-registry
+    ports:
+      - "5000:5000"
+    networks:
+      - ci-network
+
+  # Docker-in-Docker (daemon isolado para builds)
+  dind:
+    image: docker:27-dind
+    container_name: ex07-dind
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: ""  # Desabilita TLS (apenas para dev local!)
+    networks:
+      - ci-network
+
+  # Aplicação Node.js com testes
+  app:
+    build: ./app
+    container_name: ex07-app
+    command: npm test
+    networks:
+      - ci-network
+
+  # Builder: constrói e publica SE testes passarem
+  builder:
+    image: docker:27-cli
+    container_name: ex07-builder
+    depends_on:
+      - dind
+      - registry
+      - app
+    environment:
+      DOCKER_HOST: tcp://dind:2375
+    volumes:
+      - ./app:/workspace
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo '🔨 Aguardando Docker daemon...'
+        && sleep 5
+        && echo '🧪 Executando testes...'
+        && docker build -t biblioteca-ci:latest .
+        && docker run --rm biblioteca-ci:latest npm test
+        && TEST_EXIT=$$?
+        && if [ $$TEST_EXIT -eq 0 ]; then
+            echo '✅ Testes passaram! Publicando imagem...'
+            && docker tag biblioteca-ci:latest registry:5000/biblioteca-ci:latest
+            && docker push registry:5000/biblioteca-ci:latest
+            && echo '🚀 Imagem publicada com sucesso no registry!'
+        else
+            echo '❌ Testes falharam! Bloqueando publicação.'
+            && exit 1
+        fi
+      "
+    networks:
+      - ci-network
+
+networks:
+  ci-network:
+    driver: bridge

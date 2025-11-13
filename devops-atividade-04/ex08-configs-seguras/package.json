@@ -1,0 +1,16 @@
+{
+  "name": "config-segura-api",
+  "version": "1.0.0",
+  "description": "API demonstrando gestão segura de configurações",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "yaml": "^2.3.4"
+  },
+  "keywords": ["docker", "security", "config", "devops"],
+  "author": "DevOps Turma 2025",
+  "license": "MIT"
+}

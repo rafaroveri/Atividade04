@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: ex08-api
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      # Monta config.yml como read-only (segurança)
+      - ./config.yml:/etc/app/config.yml:ro
+    environment:
+      - NODE_ENV=development
+    networks:
+      - secure-network
+
+networks:
+  secure-network:
+    driver: bridge

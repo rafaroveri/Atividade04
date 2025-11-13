@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL com healthcheck
+  db:
+    image: postgres:16-alpine
+    container_name: ex04-db
+    environment:
+      # ⚠️ ATENÇÃO: Credenciais DEMO apenas! Nunca use em produção!
+      POSTGRES_USER: devops
+      POSTGRES_PASSWORD: senha123
+      POSTGRES_DB: biblioteca
+    ports:
+      - "5432:5432"
+    healthcheck:
+      # Verifica se o PostgreSQL está pronto para aceitar conexões
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - app-network
+
+  # Aplicação que depende do DB estar saudável
+  app:
+    image: alpine:3.20
+    container_name: ex04-app
+    command: >
+      sh -c "
+        echo '✅ App iniciando... DB está healthy!'
+        && sleep 2
+        && echo '🚀 App pronta para processar requisições'
+        && echo '📊 Conectada ao banco de dados'
+        && tail -f /dev/null
+      "
+    depends_on:
+      db:
+        # Aguarda até que o healthcheck do db seja bem-sucedido
+        condition: service_healthy
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

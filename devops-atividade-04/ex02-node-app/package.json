@@ -1,0 +1,13 @@
+{
+  "name": "biblioteca-online",
+  "version": "1.0.0",
+  "description": "Aplicação simples de biblioteca online",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": ["docker", "node", "devops"],
+  "author": "DevOps Turma 2025",
+  "license": "MIT"
+}
