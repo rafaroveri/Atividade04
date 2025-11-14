@@ -39,5 +39,3 @@ Thumbs.db
 # Docker
 .dockerignore
 !/ex05-pg-secure/.dockerignore
-
-pipeline-log.txt

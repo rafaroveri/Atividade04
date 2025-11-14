@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  registry:
+    image: registry:2
+    container_name: ex07-registry
+    ports:
+      - "5000:5000"
+    volumes:
+      - registry-data:/var/lib/registry
+    networks:
+      - ci-network
+
+  app:
+    build:
+      context: ./app
+    image: biblioteca-ci:test-runner
+    container_name: ex07-app
+    command: ["/ci/run-tests.sh"]
+    volumes:
+      - ./scripts:/ci:ro
+    networks:
+      - ci-network
+
+  builder:
+    image: docker:27-dind
+    container_name: ex07-builder
+    privileged: true
+    environment:
+      REGISTRY_URL: registry:5000
+      IMAGE_NAME: biblioteca-ci
+      IMAGE_TAG: ci
+      APP_DIR: /workspace/app
+    volumes:
+      - builder-cache:/var/lib/docker
+      - ./app:/workspace/app:ro
+      - ./scripts:/ci:ro
+    command: ["/ci/builder-entrypoint.sh"]
+    depends_on:
+      registry:
+        condition: service_started
+      app:
+        condition: service_completed_successfully
+    networks:
+      - ci-network
+
+networks:
+  ci-network:
+    driver: bridge
+
+volumes:
+  builder-cache:
+  registry-data:
