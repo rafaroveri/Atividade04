@@ -13,11 +13,21 @@ services:
       - /usr/src/app/node_modules
     command: >
       sh -c "
-        echo '📦 Instalando dependências...'
-        && npm install
-        && echo '🚀 Iniciando servidor de desenvolvimento...'
-        && echo '🔗 Acesse: http://localhost:5173'
-        && npm run dev -- --host 0.0.0.0
+        if [ ! -f package.json ]; then
+          echo '⚠️  Nenhum package.json encontrado. Crie um projeto com:'
+          echo '   docker compose run --rm web npm create vite@latest . -- --template vanilla'
+          echo '   (ou ajuste conforme o framework desejado)'
+          exec tail -f /dev/null
+        fi
+
+        if [ ! -d node_modules ]; then
+          echo '📦 Instalando dependências...'
+          npm install
+        fi
+
+        echo '🚀 Iniciando servidor de desenvolvimento...'
+        echo '🔗 Acesse: http://localhost:5173'
+        exec npm run dev -- --host 0.0.0.0 --port 5173
       "
     environment:
       - NODE_ENV=development
