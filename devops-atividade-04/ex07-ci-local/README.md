@@ -81,4 +81,115 @@ Resultado esperado:
   make ex07
   ```
 
+## ✅ Resultados dos Testes
+
+**Status:** PARCIALMENTE APROVADO ⚠️
+
+### ✓ Componentes Testados com Sucesso
+
+#### Registry (✅ Funcionando)
+- ✅ Serviço registry iniciado na porta 5000
+- ✅ Volume registry-data criado para persistência
+- ✅ Pronto para receber imagens
+
+#### App - Test Runner (✅ Funcionando)
+- ✅ Imagem `biblioteca-ci:test-runner` construída
+- ✅ Dependências instaladas com sucesso
+- ✅ **Testes executados e aprovados:**
+  - ✅ somar dois números - PASS
+  - ✅ multiplicar dois números - PASS  
+  - ✅ caso de sucesso trivial - PASS
+- ✅ Exit code 0 (sucesso)
+- ✅ Pipeline continua apenas se testes passarem
+
+#### Builder - Docker-in-Docker (⚠️ Problemas no Windows)
+- ⚠️ Container iniciou mas Docker daemon não completou inicialização
+- ⚠️ Docker-in-Docker tem limitações conhecidas no Windows/WSL2
+- ✅ Scripts corrigidos para line endings Unix (LF)
+
+### Como Reproduzir os Testes
+
+#### 1. Preparação (Windows - corrigir line endings)
+```powershell
+# Navegar para a pasta de scripts
+cd ex07-ci-local/scripts
+
+# Converter line endings para Unix (LF)
+Get-ChildItem *.sh | ForEach-Object {
+    $content = Get-Content $_.Name -Raw
+    $content = $content -replace "`r`n", "`n"
+    [System.IO.File]::WriteAllText("$PWD\$($_.Name)", $content, [System.Text.UTF8Encoding]::new($false))
+}
+```
+
+#### 2. Executar Pipeline
+```bash
+# Build e executar
+docker compose up --build
+
+# Ou em background
+docker compose up --build -d
+
+# Ver logs
+docker compose logs app      # Testes da aplicação
+docker compose logs builder  # Docker-in-Docker
+docker compose logs registry # Registry privado
+```
+
+#### 3. Verificar Testes (Sempre Funciona)
+```bash
+# Os testes sempre executam e mostram resultado
+docker compose logs app
+```
+
+Saída esperada:
+```
+==> Instalando dependências do projeto
+==> Executando suíte de testes
+✓ somar dois números
+✓ multiplicar dois números  
+✓ caso de sucesso trivial
+# tests 3
+# pass 3
+# fail 0
+```
+
+#### 4. Limpar
+```bash
+docker compose down
+# ou com volumes
+docker compose down -v
+```
+
+### 🪟 Limitações no Windows
+
+**Docker-in-Docker (DinD) tem problemas conhecidos no Windows:**
+
+1. ✅ **O que funciona:**
+   - Build da imagem da aplicação
+   - Execução de testes no container app
+   - Registry privado
+   - Validação de que testes bloqueiam pipeline se falharem
+
+2. ⚠️ **O que pode não funcionar:**
+   - Docker daemon dentro do container builder (DinD)
+   - Build de imagem dentro do DinD
+   - Push para registry via DinD
+
+3. 🔧 **Alternativas para testar completamente:**
+   - Usar Linux/macOS nativo
+   - Usar WSL2 com Docker instalado dentro (não Docker Desktop)
+   - Usar VM Linux
+   - Testar em ambiente CI/CD real (GitHub Actions, GitLab CI)
+
+### ✅ Conceitos Demonstrados
+
+- ✅ Pipeline CI local com Docker Compose
+- ✅ Testes automatizados bloqueando pipeline
+- ✅ Registry Docker privado
+- ✅ Separação de responsabilidades (app, builder, registry)
+- ✅ Dependências condicionais (`depends_on` com `service_completed_successfully`)
+- ✅ Volumes para cache e persistência
+- ⚠️ Docker-in-Docker (conceito válido, limitações de ambiente)
+
 Aproveite para experimentar ajustes no Dockerfile, novos testes ou novas tags de imagem dentro do fluxo automatizado! 

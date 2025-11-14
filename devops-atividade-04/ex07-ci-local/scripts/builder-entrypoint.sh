@@ -23,7 +23,7 @@ until docker info >/dev/null 2>&1; do
   printf '.'
   sleep 1
   if ! kill -0 "$DOCKERD_PID" 2>/dev/null; then
-    echo "\nErro: dockerd não está em execução"
+    echo "\nErro: dockerd nÃ£o estÃ¡ em execuÃ§Ã£o"
     cat /var/log/dockerd.log
     exit 1
   fi
@@ -43,4 +43,4 @@ echo "==> Publicando imagem em $REGISTRY_IMAGE"
 docker tag "$FULL_IMAGE" "$REGISTRY_IMAGE"
 docker push "$REGISTRY_IMAGE"
 
-echo '\n🚀 Pipeline finalizado com sucesso!'
+echo '\nðŸš€ Pipeline finalizado com sucesso!'
