@@ -21,11 +21,11 @@ test('multiplicar dois números', () => {
 });
 
 test('caso de sucesso trivial', () => {
-  // ✅ TESTE PASSA: Pipeline publica imagem
+  //  TESTE PASSA: Pipeline publica imagem
   assert.strictEqual(true, true);
   
-  // ❌ Para testar FALHA, descomente a linha abaixo:
+  //  Para testar FALHA, descomente a linha abaixo:
   // assert.strictEqual(true, false);
 });
 
-console.log('🧪 Executando testes...');
+console.log(' Executando testes...');

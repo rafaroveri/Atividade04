@@ -12,6 +12,6 @@ export function multiplicar(a, b) {
 
 // Servidor HTTP básico (opcional)
 if (import.meta.url === `file://${process.argv[1]}`) {
-  console.log('📚 Biblioteca CI - Aplicação rodando');
-  console.log('✅ Funções: somar(), multiplicar()');
+  console.log(' Biblioteca CI - Aplicação rodando');
+  console.log(' Funções: somar(), multiplicar()');
 }

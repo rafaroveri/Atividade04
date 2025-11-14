@@ -14,15 +14,15 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`✅ Servidor rodando em http://${HOST}:${PORT}`);
-  console.log(`📚 Biblioteca online - DevOps Atividade 04`);
+  console.log(` Servidor rodando em http://${HOST}:${PORT}`);
+  console.log(` Biblioteca online - DevOps Atividade 04`);
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('🛑 SIGTERM recebido. Encerrando servidor...');
+  console.log(' SIGTERM recebido. Encerrando servidor...');
   server.close(() => {
-    console.log('✅ Servidor encerrado com sucesso.');
+    console.log(' Servidor encerrado com sucesso.');
     process.exit(0);
   });
 });

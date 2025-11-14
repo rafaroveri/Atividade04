@@ -1,17 +1,17 @@
 # Exercício 08: Configurações Seguras
 
-## 🎯 Objetivo
+##  Objetivo
 
 Demonstrar gestão segura de configurações usando variáveis de ambiente (.env) e arquivos de config montados como read-only via `configs` do Docker Compose.
 
-## 📦 O que será criado
+##  O que será criado
 
 - API Node.js que lê configurações de múltiplas fontes
 - `.env` (não commitado) para segredos e variáveis sensíveis
 - `config.yml` distribuído como Docker config, montado em modo somente leitura
 - Endpoint `/info` que expõe apenas informações sanitizadas
 
-## 🗂️ Arquivos importantes
+##  Arquivos importantes
 
 | Arquivo | Descrição |
 | --- | --- |
@@ -21,7 +21,7 @@ Demonstrar gestão segura de configurações usando variáveis de ambiente (.env
 | `config.yml` | Configurações não sensíveis montadas em `/etc/app/config.yml` |
 | `app.js` | Código da API com leitura segura de configs |
 
-## 🔨 Como executar
+##  Como executar
 
 ### Preparar ambiente
 
@@ -33,7 +33,7 @@ cp .env.example .env
 vim .env  # ou editor de sua preferência
 ```
 
-> ⚠️ O arquivo `.env` é lido automaticamente pelo Compose e **não deve ser commitado**.
+>  O arquivo `.env` é lido automaticamente pelo Compose e **não deve ser commitado**.
 
 ### Iniciar API
 
@@ -68,7 +68,7 @@ A resposta deve conter:
 3. Verifique que os valores sensíveis aparecem apenas mascarados (`***CONFIGURED***`).
 4. Confirme que não há trechos contendo partes do segredo:
    ```bash
-   docker compose logs api | grep -iE 'senha|secret|key' && echo "⚠️ Encontrado" || echo "✅ Limpo"
+   docker compose logs api | grep -iE 'senha|secret|key' && echo " Encontrado" || echo " Limpo"
    ```
 
 ### Encerrar
@@ -83,7 +83,7 @@ docker compose down
 make ex08
 ```
 
-## ✅ Critérios de aceite
+##  Critérios de aceite
 
 - [x] API inicia e responde na porta 8080
 - [x] Endpoint `/info` retorna configurações do `.env` e do `config.yml`
@@ -92,7 +92,7 @@ make ex08
 - [x] `.env` real não está commitado no Git
 - [x] `.env.example` documenta variáveis necessárias
 
-## 💡 Conceitos aprendidos
+##  Conceitos aprendidos
 
 - **Separação de configuração**: 12-factor app
 - Uso de `.env` vs. arquivos de config montados via Compose
@@ -100,7 +100,7 @@ make ex08
 - Mascaramento de segredos em logs/responses
 - Diferença entre `.env.example` e `.env`
 
-## 🔍 Estrutura de resposta `/info`
+##  Estrutura de resposta `/info`
 
 ```json
 {
@@ -127,21 +127,21 @@ make ex08
 }
 ```
 
-## 🧪 Teste de segurança adicional
+##  Teste de segurança adicional
 
 ```bash
 # Logs não devem conter senhas
 if docker compose logs api | grep -i password; then
-  echo "⚠️ Atenção: encontrado termo sensível nos logs"
+  echo " Atenção: encontrado termo sensível nos logs"
 else
-  echo "✅ Logs limpos"
+  echo " Logs limpos"
 fi
 
 # Endpoint não deve expor segredos completos
 curl http://localhost:8080/info | grep '***CONFIGURED***'
 ```
 
-## 📝 Checklist de segurança
+##  Checklist de segurança
 
 - [x] `.env` no `.gitignore`
 - [x] `.env.example` commitado (valores fictícios)
@@ -152,31 +152,31 @@ curl http://localhost:8080/info | grep '***CONFIGURED***'
 
 ---
 
-## ✅ Resultados dos Testes
+##  Resultados dos Testes
 
-**Status:** APROVADO ✅ (100%)
+**Status:** APROVADO  (100%)
 
-### ✓ Testes Executados
+###  Testes Executados
 
-#### 1. Build e Inicialização (✅ APROVADO)
+#### 1. Build e Inicialização ( APROVADO)
 ```
-✅ Imagem construída com sucesso
-✅ Container ex08-api iniciado
-✅ API respondendo na porta 8080
-✅ Configurações carregadas de /etc/app/config.yml
+ Imagem construída com sucesso
+ Container ex08-api iniciado
+ API respondendo na porta 8080
+ Configurações carregadas de /etc/app/config.yml
 ```
 
-#### 2. Mascaramento de Segredos nos Logs (✅ APROVADO)
+#### 2. Mascaramento de Segredos nos Logs ( APROVADO)
 ```
-🔒 App Name: atividade04
-🔒 API Key: ***CONFIGURED***
-🔒 Database URL: ***CONFIGURED***
-🔒 JWT Secret: ***CONFIGURED***
+ App Name: atividade04
+ API Key: ***CONFIGURED***
+ Database URL: ***CONFIGURED***
+ JWT Secret: ***CONFIGURED***
 ```
-- ✅ Nenhum segredo exposto em texto plano
-- ✅ Todos os valores sensíveis mascarados como `***CONFIGURED***`
+-  Nenhum segredo exposto em texto plano
+-  Todos os valores sensíveis mascarados como `***CONFIGURED***`
 
-#### 3. Endpoint /info (✅ APROVADO)
+#### 3. Endpoint /info ( APROVADO)
 **Resposta recebida:**
 ```json
 {
@@ -225,66 +225,66 @@ curl http://localhost:8080/info | grep '***CONFIGURED***'
 ```
 
 **Validações:**
-- ✅ Status HTTP 200
-- ✅ Todos os segredos mascarados (`***CONFIGURED***`)
-- ✅ Configurações do `.env` carregadas (APP_NAME, APP_VERSION)
-- ✅ Configurações do `config.yml` carregadas (feature_flags, api, logging, cache)
-- ✅ Estrutura JSON correta e completa
+-  Status HTTP 200
+-  Todos os segredos mascarados (`***CONFIGURED***`)
+-  Configurações do `.env` carregadas (APP_NAME, APP_VERSION)
+-  Configurações do `config.yml` carregadas (feature_flags, api, logging, cache)
+-  Estrutura JSON correta e completa
 
-#### 4. Montagem Read-Only do config.yml (✅ APROVADO)
+#### 4. Montagem Read-Only do config.yml ( APROVADO)
 ```bash
 $ docker exec ex08-api sh -c "echo 'teste' >> /etc/app/config.yml"
 sh: can't create /etc/app/config.yml: Read-only file system
 ```
-- ✅ Arquivo montado como read-only (mode: "0440" no compose)
-- ✅ Sistema bloqueia tentativas de escrita
-- ✅ Proteção contra modificações acidentais/maliciosas
+-  Arquivo montado como read-only (mode: "0440" no compose)
+-  Sistema bloqueia tentativas de escrita
+-  Proteção contra modificações acidentais/maliciosas
 
-#### 5. Proteção do .env (✅ APROVADO)
+#### 5. Proteção do .env ( APROVADO)
 ```bash
 $ git status --short ex08-configs-seguras/
 (nenhuma mudança detectada)
 ```
-- ✅ Arquivo `.env` criado localmente com valores sensíveis
-- ✅ `.env` bloqueado pelo `.gitignore`
-- ✅ `.env.example` presente com valores de exemplo
-- ✅ Nenhum segredo commitado no repositório
+-  Arquivo `.env` criado localmente com valores sensíveis
+-  `.env` bloqueado pelo `.gitignore`
+-  `.env.example` presente com valores de exemplo
+-  Nenhum segredo commitado no repositório
 
-#### 6. Busca por Vazamento nos Logs (✅ APROVADO)
+#### 6. Busca por Vazamento nos Logs ( APROVADO)
 ```bash
 $ docker compose logs api | Select-String -Pattern "senha|secret|key|p@ssw0rd|sk_live"
-ex08-api  | 🔒 API Key: ***CONFIGURED***
-ex08-api  | 🔒 JWT Secret: ***CONFIGURED***
+ex08-api  |  API Key: ***CONFIGURED***
+ex08-api  |  JWT Secret: ***CONFIGURED***
 ```
-- ✅ Nenhum valor sensível encontrado em texto plano
-- ✅ Apenas strings mascaradas aparecem nos logs
-- ✅ Termos como "secret" e "key" aparecem apenas nos labels, não nos valores
+-  Nenhum valor sensível encontrado em texto plano
+-  Apenas strings mascaradas aparecem nos logs
+-  Termos como "secret" e "key" aparecem apenas nos labels, não nos valores
 
-### 📊 Resumo dos Critérios de Aceite
+###  Resumo dos Critérios de Aceite
 
 | Critério | Status | Observação |
 |----------|--------|------------|
-| API inicia na porta 8080 | ✅ 100% | Container saudável e respondendo |
-| Endpoint /info retorna configs | ✅ 100% | JSON completo com .env + config.yml |
-| Segredos mascarados em logs | ✅ 100% | Todos aparecem como `***CONFIGURED***` |
-| Segredos mascarados em response | ✅ 100% | JSON não expõe valores reais |
-| config.yml read-only | ✅ 100% | Montado via `configs` com mode 0440 |
-| .env não commitado | ✅ 100% | Bloqueado pelo .gitignore |
-| .env.example presente | ✅ 100% | Documentação para desenvolvedores |
+| API inicia na porta 8080 |  100% | Container saudável e respondendo |
+| Endpoint /info retorna configs |  100% | JSON completo com .env + config.yml |
+| Segredos mascarados em logs |  100% | Todos aparecem como `***CONFIGURED***` |
+| Segredos mascarados em response |  100% | JSON não expõe valores reais |
+| config.yml read-only |  100% | Montado via `configs` com mode 0440 |
+| .env não commitado |  100% | Bloqueado pelo .gitignore |
+| .env.example presente |  100% | Documentação para desenvolvedores |
 
 **Conceitos de Segurança Demonstrados:** 7/7 (100%)
 
-### 🎓 Conceitos DevOps Validados
+###  Conceitos DevOps Validados
 
-1. ✅ **12-Factor App (Config)**: Separação de configuração do código
-2. ✅ **Secrets Management**: Variáveis sensíveis em `.env`, nunca em código
-3. ✅ **Read-Only Mounts**: Proteção de arquivos críticos contra modificação
-4. ✅ **Log Sanitization**: Mascaramento automático de credenciais
-5. ✅ **Environment Variables**: Uso correto de `env_file` no Compose
-6. ✅ **Docker Configs**: Feature nativa para distribuir configs imutáveis
-7. ✅ **Security by Default**: Validação obrigatória de variáveis no startup
+1.  **12-Factor App (Config)**: Separação de configuração do código
+2.  **Secrets Management**: Variáveis sensíveis em `.env`, nunca em código
+3.  **Read-Only Mounts**: Proteção de arquivos críticos contra modificação
+4.  **Log Sanitization**: Mascaramento automático de credenciais
+5.  **Environment Variables**: Uso correto de `env_file` no Compose
+6.  **Docker Configs**: Feature nativa para distribuir configs imutáveis
+7.  **Security by Default**: Validação obrigatória de variáveis no startup
 
-### 📝 Reprodução dos Testes
+###  Reprodução dos Testes
 
 ```bash
 # 1. Preparar ambiente
@@ -314,4 +314,4 @@ docker compose down
 
 **Data do teste:** 13 de novembro de 2025  
 **Ambiente:** Docker Desktop 28.5.2 no Windows  
-**Resultado:** ✅ TODOS OS TESTES PASSARAM (100%)
+**Resultado:**  TODOS OS TESTES PASSARAM (100%)

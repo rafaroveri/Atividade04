@@ -1,16 +1,16 @@
 # Exercício 06: Ambiente de Desenvolvimento Frontend
 
-## 🎯 Objetivo
+##  Objetivo
 
 Configurar ambiente de desenvolvimento com hot-reload usando Docker Compose e bind mounts.
 
-## 📦 O que será criado
+##  O que será criado
 
 - Dockerfile com Node.js para frontend
 - Docker Compose com bind mount para código
 - Hot-reload automático ao salvar arquivos
 
-## 🔨 Como executar
+##  Como executar
 
 ### Iniciar ambiente de desenvolvimento
 
@@ -18,7 +18,7 @@ Configurar ambiente de desenvolvimento com hot-reload usando Docker Compose e bi
 docker compose up
 ```
 
-> 💡 Durante o primeiro `docker compose up`, o serviço instalará as dependências
+>  Durante o primeiro `docker compose up`, o serviço instalará as dependências
 > automaticamente (quando existir um `package.json`) e, em seguida, iniciará o
 > servidor de desenvolvimento.
 
@@ -43,34 +43,34 @@ docker compose down
 make ex06
 ```
 
-## ✅ Critérios de aceite
+##  Critérios de aceite
 
 - [x] Container inicia e expõe porta 5173
 - [x] Bind mount funciona (mudanças no host refletem no container)
 - [x] Hot-reload funciona (sem rebuild de imagem)
 - [x] Servidor acessível via navegador
 
-## ✅ Resultados dos Testes
+##  Resultados dos Testes
 
-**Status:** APROVADO ✓
+**Status:** APROVADO 
 
 ### Build e Execução
-- ✅ Imagem baseada em `node:20-alpine`
-- ✅ Tamanho: 251MB
-- ✅ Container iniciou com sucesso
-- ✅ Servidor Vite rodando na porta 5173
+-  Imagem baseada em `node:20-alpine`
+-  Tamanho: 251MB
+-  Container iniciou com sucesso
+-  Servidor Vite rodando na porta 5173
 
 ### Bind Mount e Hot-Reload
-- ✅ Bind mount funcionando: Mudanças no host refletem instantaneamente no container
-- ✅ Hot-reload do Vite ativo: Servidor detecta mudanças automaticamente
-- ✅ Arquivo editado no host foi visto dentro do container
-- ✅ Sem necessidade de rebuild de imagem
+-  Bind mount funcionando: Mudanças no host refletem instantaneamente no container
+-  Hot-reload do Vite ativo: Servidor detecta mudanças automaticamente
+-  Arquivo editado no host foi visto dentro do container
+-  Sem necessidade de rebuild de imagem
 
 ### Configuração
-- ✅ Servidor respondendo em http://localhost:5173
-- ✅ HTTP 200 OK ao acessar a aplicação
-- ✅ Vite dev server iniciado com sucesso
-- ✅ Network frontend-network criada
+-  Servidor respondendo em http://localhost:5173
+-  HTTP 200 OK ao acessar a aplicação
+-  Vite dev server iniciado com sucesso
+-  Network frontend-network criada
 
 ### Como Reproduzir os Testes
 
@@ -99,7 +99,7 @@ docker logs ex06-frontend-dev
 #### 4. Testar Hot-Reload
 ```bash
 # Edite src/main.js (altere o título ou adicione conteúdo)
-# Exemplo: mude "Hello Vite!" para "Hello Vite! - DevOps Atividade 04 🚀"
+# Exemplo: mude "Hello Vite!" para "Hello Vite! - DevOps Atividade 04 "
 
 # Verifique que a mudança reflete no container
 docker exec ex06-frontend-dev cat /usr/src/app/src/main.js
@@ -116,16 +116,16 @@ docker compose down
 
 No Windows, o volume anônimo para `node_modules` pode causar conflitos. A configuração foi ajustada:
 
-1. ✅ Adicionado `user: root` no docker-compose para evitar problemas de permissão
-2. ✅ Comentado o volume anônimo de node_modules
-3. ✅ `npm install` deve ser executado via `docker compose run` antes de `up`
+1.  Adicionado `user: root` no docker-compose para evitar problemas de permissão
+2.  Comentado o volume anônimo de node_modules
+3.  `npm install` deve ser executado via `docker compose run` antes de `up`
 
 Se tiver problemas de permissão, execute:
 ```bash
 docker compose run --rm web npm install
 ```
 
-## 💡 Conceitos aprendidos
+##  Conceitos aprendidos
 
 - **Bind mounts**: sincronização bidirecional host ↔ container
 - **Hot-reload**: desenvolvimento sem rebuild constante
@@ -133,7 +133,7 @@ docker compose run --rm web npm install
 - Flag `--host` para aceitar conexões externas
 - Benefícios de Compose para dev vs. produção
 
-## 🔧 Como funciona o bind mount
+##  Como funciona o bind mount
 
 ```yaml
 volumes:
@@ -142,7 +142,7 @@ volumes:
 
 Qualquer mudança no host é visível no container **instantaneamente**.
 
-## 🚨 Troubleshooting
+##  Troubleshooting
 
 ### Problema: "EACCES: permission denied"
 
@@ -171,7 +171,7 @@ volumes:
   - /usr/src/app/node_modules  # Volume anônimo (isolado)
 ```
 
-## 📊 Comparação: Dev vs. Prod
+##  Comparação: Dev vs. Prod
 
 | Aspecto | Desenvolvimento | Produção |
 |---------|----------------|----------|
@@ -181,7 +181,7 @@ volumes:
 | Otimização | Não | Minificação, tree-shaking |
 | Segurança | Relaxada | Restrita |
 
-## 🧪 Exemplo de projeto frontend
+##  Exemplo de projeto frontend
 
 Para testar, crie um `index.html` simples:
 
@@ -192,7 +192,7 @@ Para testar, crie um `index.html` simples:
     <title>DevOps - Ex06</title>
 </head>
 <body>
-    <h1>Frontend com Hot-Reload! 🔥</h1>
+    <h1>Frontend com Hot-Reload! </h1>
     <p>Edite este arquivo e veja a mágica acontecer.</p>
 </body>
 </html>

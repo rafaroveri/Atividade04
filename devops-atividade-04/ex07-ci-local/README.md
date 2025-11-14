@@ -2,7 +2,7 @@
 
 Simule uma esteira de CI/CD totalmente local utilizando Docker Compose, Docker-in-Docker e um registry privado.
 
-## 🧱 Componentes do pipeline
+##  Componentes do pipeline
 
 | Serviço   | Função | Imagem base |
 |-----------|--------|-------------|
@@ -15,7 +15,7 @@ Scripts auxiliares estão em `scripts/`:
 - `run-tests.sh`: instala dependências e executa os testes da aplicação.
 - `builder-entrypoint.sh`: sobe o daemon Docker-in-Docker, aguarda ficar disponível, realiza o build, executa os testes dentro da imagem e faz o push condicional para o registry local.
 
-## ▶️ Executando a pipeline completa
+##  Executando a pipeline completa
 
 1. Certifique-se de que o Docker Desktop/Engine está ativo.
 2. Rode o Compose com build dos serviços:
@@ -51,9 +51,9 @@ Scripts auxiliares estão em `scripts/`:
    docker compose down -v
    ```
 
-## 🧪 Testando cenários
+##  Testando cenários
 
-### Testes passando ✅
+### Testes passando 
 
 Manter `expect(true).toBe(true);` em `app/test.spec.js`.
 
@@ -62,7 +62,7 @@ Resultado esperado:
 - O builder publica `registry:5000/biblioteca-ci:ci`.
 - `curl http://localhost:5000/v2/biblioteca-ci/tags/list` retorna a tag `ci`.
 
-### Testes falhando ❌
+### Testes falhando 
 
 Altere `app/test.spec.js` para algo como `expect(true).toBe(false);` e execute novamente `docker compose up --build`.
 
@@ -71,7 +71,7 @@ Resultado esperado:
 - `docker compose ps` mostra `builder` como `Exit 1` porque depende do sucesso do `app`.
 - Nenhuma nova tag aparece no registry.
 
-## ℹ️ Dicas adicionais
+## ℹ Dicas adicionais
 
 - O volume `builder-cache` mantém o cache de camadas do Docker-in-Docker entre execuções.
 - O registry utiliza o volume `registry-data` para persistir as imagens.
@@ -81,58 +81,58 @@ Resultado esperado:
   make ex07
   ```
 
-## ✅ Resultados dos Testes
+##  Resultados dos Testes
 
-**Status:** PARCIALMENTE APROVADO ⚠️ (Limitações do Docker-in-Docker no Windows)
+**Status:** PARCIALMENTE APROVADO  (Limitações do Docker-in-Docker no Windows)
 
-### ✓ Componentes Testados com Sucesso
+###  Componentes Testados com Sucesso
 
-#### Registry (✅ APROVADO - 100%)
-- ✅ Serviço registry:2 iniciado na porta 5000
-- ✅ Volume registry-data criado para persistência
-- ✅ Pronto para receber imagens via push
-- ✅ API respondendo corretamente
+#### Registry ( APROVADO - 100%)
+-  Serviço registry:2 iniciado na porta 5000
+-  Volume registry-data criado para persistência
+-  Pronto para receber imagens via push
+-  API respondendo corretamente
 
-#### App - Test Runner (✅ APROVADO - 100%)
-- ✅ Imagem `biblioteca-ci:test-runner` construída com sucesso
-- ✅ Dependências instaladas automaticamente
-- ✅ **Todos os testes executados e aprovados:**
+#### App - Test Runner ( APROVADO - 100%)
+-  Imagem `biblioteca-ci:test-runner` construída com sucesso
+-  Dependências instaladas automaticamente
+-  **Todos os testes executados e aprovados:**
   ```
   TAP version 13
-  ✓ somar dois números (1.178ms)
-  ✓ multiplicar dois números (0.127ms)
-  ✓ caso de sucesso trivial (0.197ms)
+   somar dois números (1.178ms)
+   multiplicar dois números (0.127ms)
+   caso de sucesso trivial (0.197ms)
   
   # tests 3
   # pass 3
   # fail 0
   ```
-- ✅ Exit code 0 (sucesso)
-- ✅ Pipeline bloqueada se testes falharem (testado alterando test.spec.js)
-- ✅ `depends_on` com `service_completed_successfully` funcionando
+-  Exit code 0 (sucesso)
+-  Pipeline bloqueada se testes falharem (testado alterando test.spec.js)
+-  `depends_on` com `service_completed_successfully` funcionando
 
-#### Builder - Docker-in-Docker (⚠️ LIMITAÇÃO CONHECIDA)
-- ⚠️ Container inicia mas Docker daemon tem problemas de compatibilidade no Windows/WSL2
-- ✅ Docker daemon inicia dentro do container (confirmado via logs)
-- ✅ `docker info` funciona manualmente dentro do container
-- ⚠️ Script de build fica travado esperando daemon estar "pronto"
-- ⚠️ **Causa**: Incompatibilidade conhecida do DinD com Docker Desktop no Windows
+#### Builder - Docker-in-Docker ( LIMITAÇÃO CONHECIDA)
+-  Container inicia mas Docker daemon tem problemas de compatibilidade no Windows/WSL2
+-  Docker daemon inicia dentro do container (confirmado via logs)
+-  `docker info` funciona manualmente dentro do container
+-  Script de build fica travado esperando daemon estar "pronto"
+-  **Causa**: Incompatibilidade conhecida do DinD com Docker Desktop no Windows
 
-### 📊 Resultados por Objetivo
+###  Resultados por Objetivo
 
 | Objetivo | Status | Observação |
 |----------|--------|------------|
-| Build da aplicação | ✅ 100% | Imagem construída com cache eficiente |
-| Testes automatizados | ✅ 100% | 3/3 testes passando |
-| Registry privado | ✅ 100% | Rodando e acessível |
-| Bloqueio por falha | ✅ 100% | Pipeline para se testes falharem |
-| Dependências condicionais | ✅ 100% | `depends_on` funcionando |
-| Docker-in-Docker | ⚠️ N/A | Limitação de ambiente Windows |
-| Push para registry | ⚠️ N/A | Depende do DinD |
+| Build da aplicação |  100% | Imagem construída com cache eficiente |
+| Testes automatizados |  100% | 3/3 testes passando |
+| Registry privado |  100% | Rodando e acessível |
+| Bloqueio por falha |  100% | Pipeline para se testes falharem |
+| Dependências condicionais |  100% | `depends_on` funcionando |
+| Docker-in-Docker |  N/A | Limitação de ambiente Windows |
+| Push para registry |  N/A | Depende do DinD |
 
 **Conceitos DevOps Demonstrados:** 5/6 (83%)
 
-### 🔧 Alternativas para Ambiente Windows
+###  Alternativas para Ambiente Windows
 
 Devido às limitações do Docker-in-Docker no Windows/WSL2, considere:
 
@@ -156,14 +156,14 @@ Devido às limitações do Docker-in-Docker no Windows/WSL2, considere:
    - Instalar Docker Engine diretamente no WSL2
    - Melhor suporte para DinD em modo privilegiado
 
-### 📝 Conclusão dos Testes
+###  Conclusão dos Testes
 
 O exercício demonstra com sucesso os conceitos principais de CI/CD local:
-- ✅ Automação de testes
-- ✅ Pipeline que bloqueia em caso de falha
-- ✅ Registry privado funcional
-- ✅ Dependências condicionais entre serviços
-- ✅ Containers especializados (test runner vs builder)
+-  Automação de testes
+-  Pipeline que bloqueia em caso de falha
+-  Registry privado funcional
+-  Dependências condicionais entre serviços
+-  Containers especializados (test runner vs builder)
 
 **A limitação do DinD é específica do ambiente Windows e não afeta a validade dos conceitos demonstrados.**
 
@@ -206,9 +206,9 @@ Saída esperada:
 ```
 ==> Instalando dependências do projeto
 ==> Executando suíte de testes
-✓ somar dois números
-✓ multiplicar dois números  
-✓ caso de sucesso trivial
+ somar dois números
+ multiplicar dois números  
+ caso de sucesso trivial
 # tests 3
 # pass 3
 # fail 0
@@ -225,31 +225,31 @@ docker compose down -v
 
 **Docker-in-Docker (DinD) tem problemas conhecidos no Windows:**
 
-1. ✅ **O que funciona:**
+1.  **O que funciona:**
    - Build da imagem da aplicação
    - Execução de testes no container app
    - Registry privado
    - Validação de que testes bloqueiam pipeline se falharem
 
-2. ⚠️ **O que pode não funcionar:**
+2.  **O que pode não funcionar:**
    - Docker daemon dentro do container builder (DinD)
    - Build de imagem dentro do DinD
    - Push para registry via DinD
 
-3. 🔧 **Alternativas para testar completamente:**
+3.  **Alternativas para testar completamente:**
    - Usar Linux/macOS nativo
    - Usar WSL2 com Docker instalado dentro (não Docker Desktop)
    - Usar VM Linux
    - Testar em ambiente CI/CD real (GitHub Actions, GitLab CI)
 
-### ✅ Conceitos Demonstrados
+###  Conceitos Demonstrados
 
-- ✅ Pipeline CI local com Docker Compose
-- ✅ Testes automatizados bloqueando pipeline
-- ✅ Registry Docker privado
-- ✅ Separação de responsabilidades (app, builder, registry)
-- ✅ Dependências condicionais (`depends_on` com `service_completed_successfully`)
-- ✅ Volumes para cache e persistência
-- ⚠️ Docker-in-Docker (conceito válido, limitações de ambiente)
+-  Pipeline CI local com Docker Compose
+-  Testes automatizados bloqueando pipeline
+-  Registry Docker privado
+-  Separação de responsabilidades (app, builder, registry)
+-  Dependências condicionais (`depends_on` com `service_completed_successfully`)
+-  Volumes para cache e persistência
+-  Docker-in-Docker (conceito válido, limitações de ambiente)
 
 Aproveite para experimentar ajustes no Dockerfile, novos testes ou novas tags de imagem dentro do fluxo automatizado! 

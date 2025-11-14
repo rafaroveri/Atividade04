@@ -2,7 +2,7 @@
 
 Repositório com 8 exercícios práticos de Docker e Docker Compose, focando em boas práticas, segurança e automação.
 
-## 📋 Exercícios
+##  Exercícios
 
 1. **ex01-alpine-motd**: Imagem Alpine customizada com mensagem de boas-vindas
 2. **ex02-node-app**: Aplicação Node.js containerizada com boas práticas
@@ -13,7 +13,7 @@ Repositório com 8 exercícios práticos de Docker e Docker Compose, focando em 
 7. **ex07-ci-local**: Pipeline CI local com testes e registry
 8. **ex08-configs-seguras**: Gestão segura de configurações e secrets
 
-## 🚀 Como usar
+##  Como usar
 
 ### Pré-requisitos
 - Docker Engine 24+
@@ -39,7 +39,7 @@ make clean
 
 Cada exercício possui seu próprio README.md com instruções detalhadas. Navegue até a pasta e siga os passos.
 
-## ✅ Critérios de aceite gerais
+##  Critérios de aceite gerais
 
 - [ ] Todos os comandos de build/run executam sem erros
 - [ ] Portas corretas expostas (3000, 5173, 5432, 8080)
@@ -50,7 +50,7 @@ Cada exercício possui seu próprio README.md com instruções detalhadas. Naveg
 - [ ] Pipeline CI bloqueia push se testes falharem
 - [ ] Configurações são carregadas de forma segura
 
-## 📚 Conceitos abordados
+##  Conceitos abordados
 
 - Dockerfile best practices (Alpine, multi-stage, .dockerignore)
 - Docker Compose (healthchecks, depends_on, networks, volumes)
@@ -58,7 +58,7 @@ Cada exercício possui seu próprio README.md com instruções detalhadas. Naveg
 - Desenvolvimento local (hot-reload, bind mounts)
 - CI/CD local (Docker-in-Docker, registry, testes automatizados)
 
-## 🎯 Checklist final
+##  Checklist final
 
 - [ ] ex01: Mensagem MOTD exibida ao iniciar container
 - [ ] ex02: Servidor Node responde na porta 3000
@@ -69,7 +69,7 @@ Cada exercício possui seu próprio README.md com instruções detalhadas. Naveg
 - [ ] ex07: Push no registry só ocorre se `npm test` passar
 - [ ] ex08: Endpoint `/info` retorna configs do .env e config.yml
 
-## 📝 Notas
+##  Notas
 
 - Este é um esqueleto funcional mínimo. Expanda conforme necessário.
 - Todos os exemplos usam credenciais DEMO. **Nunca** commite `.env` real.

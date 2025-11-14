@@ -16,9 +16,9 @@ let config = {};
 try {
   const configFile = fs.readFileSync(CONFIG_PATH, 'utf8');
   config = yaml.parse(configFile) || {};
-  console.log('✅ Configurações carregadas de:', CONFIG_PATH);
+  console.log(' Configurações carregadas de:', CONFIG_PATH);
 } catch (err) {
-  console.warn('⚠️  Arquivo de config não encontrado, usando defaults');
+  console.warn('  Arquivo de config não encontrado, usando defaults');
   config = { app_name: 'default', feature_flags: {} };
 }
 
@@ -26,16 +26,16 @@ try {
 const requiredEnvVars = ['APP_NAME', 'SECRET_API_KEY'];
 for (const varName of requiredEnvVars) {
   if (!process.env[varName]) {
-    console.error(`❌ ERRO: Variável ${varName} não definida!`);
+    console.error(` ERRO: Variável ${varName} não definida!`);
     process.exit(1);
   }
 }
 
-// ⚠️ NÃO loga segredos!
-console.log('🔒 App Name:', process.env.APP_NAME);
-console.log('🔒 API Key:', maskSecret(process.env.SECRET_API_KEY));
-console.log('🔒 Database URL:', maskSecret(process.env.DATABASE_URL));
-console.log('🔒 JWT Secret:', maskSecret(process.env.JWT_SECRET));
+//  NÃO loga segredos!
+console.log(' App Name:', process.env.APP_NAME);
+console.log(' API Key:', maskSecret(process.env.SECRET_API_KEY));
+console.log(' Database URL:', maskSecret(process.env.DATABASE_URL));
+console.log(' JWT Secret:', maskSecret(process.env.JWT_SECRET));
 
 const getAppInfo = () => ({
   name: process.env.APP_NAME,
@@ -95,7 +95,7 @@ const server = http.createServer((req, res) => {
   if (req.url === '/' && req.method === 'GET') {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.end('🔒 API de Configurações Seguras\n\nAcesse: /info\n');
+    res.end(' API de Configurações Seguras\n\nAcesse: /info\n');
     return;
   }
 
@@ -107,21 +107,21 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log('');
-  console.log('╔═══════════════════════════════════════════╗');
-  console.log('║   🔒 API Configurações Seguras           ║');
-  console.log('║   DevOps - Atividade 04                  ║');
-  console.log('╚═══════════════════════════════════════════╝');
   console.log('');
-  console.log(`✅ Servidor rodando em http://0.0.0.0:${PORT}`);
-  console.log(`📊 Endpoint: http://localhost:${PORT}/info`);
+  console.log('    API Configurações Seguras           ');
+  console.log('   DevOps - Atividade 04                  ');
+  console.log('');
+  console.log('');
+  console.log(` Servidor rodando em http://0.0.0.0:${PORT}`);
+  console.log(` Endpoint: http://localhost:${PORT}/info`);
   console.log('');
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('🛑 SIGTERM recebido. Encerrando...');
+  console.log(' SIGTERM recebido. Encerrando...');
   server.close(() => {
-    console.log('✅ Servidor encerrado.');
+    console.log(' Servidor encerrado.');
     process.exit(0);
   });
 });
