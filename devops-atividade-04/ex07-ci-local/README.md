@@ -1,138 +1,84 @@
 # Exercício 07: Pipeline CI Local
 
-## 🎯 Objetivo
+Simule uma esteira de CI/CD totalmente local utilizando Docker Compose, Docker-in-Docker e um registry privado.
 
-Simular pipeline CI/CD local usando Docker-in-Docker (DinD) e registry privado. Testes devem passar antes de publicar imagem.
+## 🧱 Componentes do pipeline
 
-## 📦 O que será criado
+| Serviço   | Função | Imagem base |
+|-----------|--------|-------------|
+| `registry` | Registry Docker local (porta `5000`) | `registry:2` |
+| `app` | Constrói a aplicação, instala dependências e roda os testes automatizados | Build da pasta `app/` |
+| `builder` | Ambiente Docker-in-Docker que realiza build da imagem, revalida testes e publica no registry | `docker:27-dind` |
 
-- Registry Docker local (porta 5000)
-- Docker-in-Docker (DinD) para builds isolados
-- Aplicação Node.js com testes
-- Builder que só faz push se testes passarem
+Scripts auxiliares estão em `scripts/`:
 
-## 🔨 Como executar
+- `run-tests.sh`: instala dependências e executa os testes da aplicação.
+- `builder-entrypoint.sh`: sobe o daemon Docker-in-Docker, aguarda ficar disponível, realiza o build, executa os testes dentro da imagem e faz o push condicional para o registry local.
 
-### Iniciar pipeline
+## ▶️ Executando a pipeline completa
 
-```bash
-docker compose up --build
-```
+1. Certifique-se de que o Docker Desktop/Engine está ativo.
+2. Rode o Compose com build dos serviços:
 
-O pipeline executará:
-1. Build da imagem da aplicação
-2. Execução dos testes (`npm test`)
-3. **Se testes passarem**: push para registry local
-4. **Se testes falharem**: pipeline interrompe, sem push
+   ```bash
+   docker compose up --build
+   ```
 
-### Verificar imagens no registry
+   O fluxo automático será:
 
-```bash
-curl http://localhost:5000/v2/_catalog
-```
+   1. Build da imagem da aplicação (`app`).
+   2. Execução dos testes via `scripts/run-tests.sh`. Se qualquer teste falhar o serviço `app` sai com código ≠ 0, interrompendo a pipeline.
+   3. O serviço `builder` inicia um Docker daemon próprio (DinD), recompila a imagem final, roda `npm test` dentro dela e faz push para `registry:5000/biblioteca-ci:ci` somente se tudo der certo.
 
-### Forçar falha nos testes
+3. Após o sucesso, verifique as imagens publicadas no registry local:
 
-Edite `app/test.spec.js` e mude `expect(true).toBe(true)` para `expect(true).toBe(false)`.
+   ```bash
+   curl http://localhost:5000/v2/_catalog
+   curl http://localhost:5000/v2/biblioteca-ci/tags/list
+   ```
 
-Rode novamente:
-```bash
-docker compose up --build
-```
+4. Para ver os logs detalhados:
 
-A imagem **não** será publicada no registry!
+   ```bash
+   docker compose logs app
+   docker compose logs builder
+   docker compose logs registry
+   ```
 
-### Limpar
+5. Para limpar os containers e volumes:
 
-```bash
-docker compose down
-```
+   ```bash
+   docker compose down -v
+   ```
 
-### Usando o Makefile (raiz do projeto)
+## 🧪 Testando cenários
 
-```bash
-make ex07
-```
+### Testes passando ✅
 
-## ✅ Critérios de aceite
+Manter `expect(true).toBe(true);` em `app/test.spec.js`.
 
-- [ ] Registry local inicia corretamente
-- [ ] App é construída e testada
-- [ ] Testes passando: imagem aparece no registry
-- [ ] Testes falhando: imagem NÃO aparece no registry (pipeline falha)
-- [ ] Logs mostram output dos testes
+Resultado esperado:
+- Logs do serviço `app` mostram testes passando.
+- O builder publica `registry:5000/biblioteca-ci:ci`.
+- `curl http://localhost:5000/v2/biblioteca-ci/tags/list` retorna a tag `ci`.
 
-## 💡 Conceitos aprendidos
+### Testes falhando ❌
 
-- **Docker-in-Docker (DinD)**: build de imagens dentro de containers
-- **Registry privado**: armazenamento local de imagens
-- **Gating**: bloquear deployment se qualidade falhar
-- CI/CD local para testes rápidos
-- Privileged mode e suas implicações de segurança
+Altere `app/test.spec.js` para algo como `expect(true).toBe(false);` e execute novamente `docker compose up --build`.
 
-## 🔍 Arquitetura do pipeline
+Resultado esperado:
+- O serviço `app` falha e interrompe o Compose (`exit code` ≠ 0).
+- `docker compose ps` mostra `builder` como `Exit 1` porque depende do sucesso do `app`.
+- Nenhuma nova tag aparece no registry.
 
-```
-┌─────────────┐
-│   app       │ → Código Node.js + testes
-└─────────────┘
-       ↓
-┌─────────────┐
-│   builder   │ → Build + test + push (condicional)
-└─────────────┘
-       ↓
-┌─────────────┐
-│   dind      │ → Docker daemon isolado
-└─────────────┘
-       ↓
-┌─────────────┐
-│  registry   │ → Registry privado (localhost:5000)
-└─────────────┘
-```
+## ℹ️ Dicas adicionais
 
-## 🚨 Segurança: DinD em produção
+- O volume `builder-cache` mantém o cache de camadas do Docker-in-Docker entre execuções.
+- O registry utiliza o volume `registry-data` para persistir as imagens.
+- Para executar a partir da raiz do repositório existe o atalho:
 
-⚠️ **ATENÇÃO**: `privileged: true` é necessário para DinD, mas é um risco de segurança!
+  ```bash
+  make ex07
+  ```
 
-**Alternativas para produção**:
-- Kaniko (rootless builds)
-- BuildKit
-- CI/CD managed (GitHub Actions, GitLab CI, etc.)
-
-## 🧪 Teste de qualidade
-
-### Cenário 1: Testes passam ✅
-```javascript
-// test.spec.js
-expect(2 + 2).toBe(4);  // ✅ Passa
-```
-**Resultado**: Imagem publicada no registry
-
-### Cenário 2: Testes falham ❌
-```javascript
-// test.spec.js
-expect(2 + 2).toBe(5);  // ❌ Falha
-```
-**Resultado**: Pipeline interrompe, nenhuma imagem publicada
-
-## 📊 Verificar logs
-
-```bash
-# Ver logs do builder (onde ocorrem testes e push)
-docker compose logs builder
-
-# Ver logs do app (aplicação em si)
-docker compose logs app
-
-# Ver imagens no registry
-curl http://localhost:5000/v2/biblioteca-ci/tags/list
-```
-
-## 🔧 Customização
-
-Para adaptar a outro projeto:
-
-1. Substitua `app/` pelo seu código
-2. Ajuste `npm test` no Dockerfile
-3. Configure variáveis no `docker-compose.yml`
-4. Adapte o script do builder
+Aproveite para experimentar ajustes no Dockerfile, novos testes ou novas tags de imagem dentro do fluxo automatizado! 
