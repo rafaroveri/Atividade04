@@ -7,11 +7,11 @@ WORKDIR /app
 # Copia arquivos de dependências primeiro (cache de layer)
 COPY package*.json ./
 
-# Instala dependências (npm ci é mais rápido e determinístico)
-RUN npm ci --only=production
+# Instala dependências
+RUN npm ci
 
-# Copia o código da aplicação
-COPY index.js ./
+# Copia o restante do código da aplicação
+COPY . .
 
 # Expõe a porta da aplicação
 EXPOSE 3000

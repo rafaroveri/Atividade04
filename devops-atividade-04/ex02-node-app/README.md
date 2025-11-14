@@ -1,75 +1,42 @@
-# Exercício 02: Aplicação Node.js
+# Exercício 02 · Aplicação Node.js
 
 ## 🎯 Objetivo
+Containerizar a API simples em `index.js` utilizando uma imagem leve do Node.js e aplicando boas práticas no Dockerfile e no `.dockerignore`.
 
-Containerizar uma aplicação Node.js simples seguindo boas práticas de Docker.
+## 📁 Estrutura criada
+- `Dockerfile` baseado em `node:20-alpine`, com etapas separadas para dependências (`npm ci`) e cópia do código.
+- `.dockerignore` bloqueando `node_modules/`, `.git/` e arquivos `*.log` do contexto de build.
+- `package-lock.json` garantindo que `npm ci` funcione de forma determinística.
 
-## 📦 O que será criado
-
-- Servidor HTTP básico em Node.js (porta 3000)
-- Dockerfile otimizado com Alpine
-- `.dockerignore` para evitar arquivos desnecessários no build context
-
-## 🔨 Como executar
-
-### Build da imagem
+## ▶️ Como construir
+Dentro da pasta `ex02-node-app/`:
 
 ```bash
 docker build -t biblioteca:1 .
 ```
 
-### Executar container
+## 🚀 Como testar
+1. Suba o container mapeando a porta 3000:
+   ```bash
+   docker run -d -p 3000:3000 biblioteca:1
+   ```
+2. Acesse em um navegador ou via `curl`:
+   ```bash
+   curl http://localhost:3000
+   ```
+3. Você deverá ver a mensagem **Biblioteca online ok**.
 
+## 🧹 Limpeza opcional
 ```bash
-docker run -d --name biblioteca-app -p 3000:3000 biblioteca:1
+docker ps --filter ancestor=biblioteca:1
+# pegue o ID do container e remova, se desejar
+docker stop <id>
+docker rm <id>
 ```
 
-### Testar aplicação
-
-```bash
-curl http://localhost:3000
-```
-
-Deve retornar: `Biblioteca online ok`
-
-### Parar e remover container
-
-```bash
-docker stop biblioteca-app
-docker rm biblioteca-app
-```
-
-### Usando o Makefile (raiz do projeto)
-
-```bash
-make ex02
-```
-
-## ✅ Critérios de aceite
-
-- [ ] Imagem constrói sem erros
-- [ ] Servidor responde na porta 3000
-- [ ] Mensagem "Biblioteca online ok" é retornada
-- [ ] `.dockerignore` impede cópia de `node_modules` e outros arquivos desnecessários
-- [ ] Imagem usa Alpine (menor tamanho)
-
-## 💡 Conceitos aprendidos
-
-- Dockerfile multi-layer para Node.js
-- Uso de `npm ci` (mais rápido e determinístico que `npm install`)
-- Importância do `.dockerignore`
-- Exposição de portas com `EXPOSE`
-- Boas práticas: WORKDIR, COPY package*.json antes do código
-
-## 🔍 Verificações adicionais
-
-```bash
-# Ver tamanho da imagem
-docker images biblioteca:1
-
-# Ver logs do container
-docker logs biblioteca-app
-
-# Inspecionar processos dentro do container
-docker exec biblioteca-app ps aux
-```
+## ✅ Checklist
+- [x] Imagem baseada em `node:20-alpine`.
+- [x] Dependências instaladas com `npm ci` após copiar somente `package*.json`.
+- [x] Código copiado em camada posterior e porta 3000 exposta.
+- [x] `.dockerignore` evita envio de `node_modules`, `.git` e arquivos `.log`.
+- [x] Passos claros para testar com `docker run -d -p 3000:3000 biblioteca:1` e validar em `http://localhost:3000`.
