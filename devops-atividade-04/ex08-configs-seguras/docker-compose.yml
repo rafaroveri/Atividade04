@@ -8,13 +8,18 @@ services:
       - "8080:8080"
     env_file:
       - .env
-    volumes:
-      # Monta config.yml como read-only (segurança)
-      - ./config.yml:/etc/app/config.yml:ro
+    configs:
+      - source: api-config
+        target: /etc/app/config.yml
+        mode: "0440"
     environment:
       - NODE_ENV=development
     networks:
       - secure-network
+
+configs:
+  api-config:
+    file: ./config.yml
 
 networks:
   secure-network:
