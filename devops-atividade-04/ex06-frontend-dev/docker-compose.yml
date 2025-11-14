@@ -8,9 +8,9 @@ services:
     ports:
       - "5173:5173"
     volumes:
-      # Bind mount: sincroniza código do host com container
+      # Bind mount: sincroniza codigo do host com container
       - .:/usr/src/app
-      # Volume anônimo para node_modules (evita conflitos) - Comentado para Windows
+      # Volume anonimo para node_modules (evita conflitos) - Comentado para Windows
       # - /usr/src/app/node_modules
     command: >
       sh -c "
@@ -22,7 +22,7 @@ services:
         fi
 
         if [ ! -d node_modules ]; then
-          echo ' Instalando dependências...'
+          echo ' Instalando dependencias...'
           npm install
         fi
 
