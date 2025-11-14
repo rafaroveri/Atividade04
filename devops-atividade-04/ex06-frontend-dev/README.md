@@ -18,6 +18,10 @@ Configurar ambiente de desenvolvimento com hot-reload usando Docker Compose e bi
 docker compose up
 ```
 
+> 💡 Durante o primeiro `docker compose up`, o serviço instalará as dependências
+> automaticamente (quando existir um `package.json`) e, em seguida, iniciará o
+> servidor de desenvolvimento.
+
 O servidor estará disponível em: **http://localhost:5173**
 
 ### Testar hot-reload
@@ -69,9 +73,12 @@ Qualquer mudança no host é visível no container **instantaneamente**.
 
 **Solução (Linux/Mac)**:
 ```bash
-# Ajusta permissões do node_modules
-docker compose run --rm web chown -R node:node /usr/src/app
+# Ajusta permissões do projeto para o usuário "node" do container
+./scripts/fix-permissions.sh
 ```
+
+> O script executa `docker compose run --rm web chown -R node:node /usr/src/app`.
+> Execute-o sempre que notar arquivos criados como `root` no host.
 
 ### Problema: Hot-reload não funciona
 
