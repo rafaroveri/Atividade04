@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Banco de dados PostgreSQL com healthcheck
+  # Banco de dados PostgreSQL com healthcheck para garantir que está pronto
   db:
     image: postgres:16-alpine
     container_name: ex04-db
@@ -13,7 +13,7 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      # Verifica se o PostgreSQL está pronto para aceitar conexões
+      # Usa pg_isready para testar se o PostgreSQL já aceita conexões
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
       interval: 10s
       timeout: 5s
@@ -22,22 +22,23 @@ services:
     networks:
       - app-network
 
-  # Aplicação que depende do DB estar saudável
+  # Aplicação Java produzida no exercício multi-stage (ex03)
   app:
-    image: alpine:3.20
+    build:
+      context: ../ex03-java-multistage
+      dockerfile: Dockerfile
+    image: ex04-java-multistage:latest
     container_name: ex04-app
-    command: >
-      sh -c "
-        echo '✅ App iniciando... DB está healthy!'
-        && sleep 2
-        && echo '🚀 App pronta para processar requisições'
-        && echo '📊 Conectada ao banco de dados'
-        && tail -f /dev/null
-      "
     depends_on:
       db:
-        # Aguarda até que o healthcheck do db seja bem-sucedido
+        # Só libera o start quando o healthcheck do db reportar "healthy"
         condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: biblioteca
+      DB_USER: devops
+    entrypoint: ["/bin/sh", "-c", "echo '⏳ Aguardando DB saudável antes de subir a aplicação...' && exec java -jar /app/app.jar"]
     networks:
       - app-network
 
