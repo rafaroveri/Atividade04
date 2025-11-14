@@ -4,6 +4,11 @@
 
 set -euo pipefail
 
+cleanup() {
+  unset PGPASSWORD || true
+}
+trap cleanup EXIT
+
 # ============================================
 # VALIDAÇÃO DE VARIÁVEIS OBRIGATÓRIAS
 # ============================================
@@ -38,17 +43,10 @@ export PGPASSWORD="$DB_PASS"
 # Tenta executar query simples
 if psql -h "$DB_HOST" -U "$DB_USER" -d postgres -c "SELECT 1 AS test;" > /dev/null 2>&1; then
   echo "✅ Conexão bem-sucedida!"
-  
-  # Query adicional para mostrar versão
   echo ""
   echo "📊 Informações do banco:"
   psql -h "$DB_HOST" -U "$DB_USER" -d postgres -t -c "SELECT version();" | head -n 1
-  
-  exit 0
 else
   echo "❌ Falha na conexão com o banco de dados!" >&2
   exit 1
 fi
-
-# Limpa variável de senha (boa prática)
-unset PGPASSWORD
