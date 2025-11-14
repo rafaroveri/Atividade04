@@ -1,5 +1,5 @@
 #!/bin/sh
-# Script para verificar conexão com PostgreSQL de forma segura
+# Script para verificar conexÃ£o com PostgreSQL de forma segura
 # Uso: docker run --rm -e DB_HOST=... -e DB_USER=... -e DB_PASS=... cofre:1
 
 set -euo pipefail
@@ -10,43 +10,43 @@ cleanup() {
 trap cleanup EXIT
 
 # ============================================
-# VALIDAÇÃO DE VARIÁVEIS OBRIGATÓRIAS
+# VALIDAÃ‡ÃƒO DE VARIÃVEIS OBRIGATÃ“RIAS
 # ============================================
 
 if [ -z "${DB_HOST:-}" ]; then
-  echo "❌ ERRO: Variável DB_HOST não definida!" >&2
+  echo "âŒ ERRO: VariÃ¡vel DB_HOST nÃ£o definida!" >&2
   exit 1
 fi
 
 if [ -z "${DB_USER:-}" ]; then
-  echo "❌ ERRO: Variável DB_USER não definida!" >&2
+  echo "âŒ ERRO: VariÃ¡vel DB_USER nÃ£o definida!" >&2
   exit 1
 fi
 
 if [ -z "${DB_PASS:-}" ]; then
-  echo "❌ ERRO: Variável DB_PASS não definida!" >&2
+  echo "âŒ ERRO: VariÃ¡vel DB_PASS nÃ£o definida!" >&2
   exit 1
 fi
 
 # ============================================
-# CONEXÃO SEGURA (sem expor senha em logs)
+# CONEXÃƒO SEGURA (sem expor senha em logs)
 # ============================================
 
-echo "🔒 Conectando ao PostgreSQL..."
+echo "ðŸ”’ Conectando ao PostgreSQL..."
 echo "   Host: $DB_HOST"
 echo "   User: $DB_USER"
-# ⚠️ NÃO imprime a senha!
+# âš ï¸ NÃƒO imprime a senha!
 
-# Define PGPASSWORD para autenticação automática (sem echo)
+# Define PGPASSWORD para autenticaÃ§Ã£o automÃ¡tica (sem echo)
 export PGPASSWORD="$DB_PASS"
 
 # Tenta executar query simples
 if psql -h "$DB_HOST" -U "$DB_USER" -d postgres -c "SELECT 1 AS test;" > /dev/null 2>&1; then
-  echo "✅ Conexão bem-sucedida!"
+  echo "âœ… ConexÃ£o bem-sucedida!"
   echo ""
-  echo "📊 Informações do banco:"
+  echo "ðŸ“Š InformaÃ§Ãµes do banco:"
   psql -h "$DB_HOST" -U "$DB_USER" -d postgres -t -c "SELECT version();" | head -n 1
 else
-  echo "❌ Falha na conexão com o banco de dados!" >&2
+  echo "âŒ Falha na conexÃ£o com o banco de dados!" >&2
   exit 1
 fi

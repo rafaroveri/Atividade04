@@ -40,3 +40,44 @@ docker rm <id>
 - [x] Código copiado em camada posterior e porta 3000 exposta.
 - [x] `.dockerignore` evita envio de `node_modules`, `.git` e arquivos `.log`.
 - [x] Passos claros para testar com `docker run -d -p 3000:3000 biblioteca:1` e validar em `http://localhost:3000`.
+
+## ✅ Resultados dos Testes
+
+**Status:** APROVADO ✓
+
+### Build
+- ✅ Imagem construída com sucesso baseada em `node:20-alpine`
+- ✅ Tamanho: 191MB
+- ✅ Tag: `biblioteca:1`
+
+### Funcionalidades Testadas
+- ✅ Container iniciou corretamente
+- ✅ Aplicação respondendo na porta 3000
+- ✅ Resposta HTTP 200 com mensagem: "Biblioteca online ok"
+- ✅ Logs do servidor exibindo requisições
+
+### Boas Práticas Verificadas
+- ✅ Cache de layers: `package*.json` copiado antes do código
+- ✅ npm ci: Instalação determinística de dependências
+- ✅ .dockerignore: Bloqueando `node_modules`, `.git` e `*.log`
+- ✅ WORKDIR definido: `/app`
+- ✅ Porta exposta: 3000
+
+### Como Reproduzir os Testes
+```bash
+# 1. Build da imagem
+docker build -t biblioteca:1 .
+
+# 2. Executar container
+docker run -d -p 3000:3000 --name biblioteca-test biblioteca:1
+
+# 3. Testar a API
+curl http://localhost:3000
+
+# 4. Verificar logs
+docker logs biblioteca-test
+
+# 5. Limpar
+docker stop biblioteca-test
+docker rm biblioteca-test
+```

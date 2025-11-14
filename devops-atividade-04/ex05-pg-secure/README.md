@@ -54,10 +54,87 @@ make ex05
 
 ## ✅ Critérios de aceite
 
-- [ ] Script valida presença de variáveis obrigatórias
-- [ ] Conexão com PostgreSQL funciona
-- [ ] Credenciais **não** aparecem em logs (use PGPASSWORD, não echo)
-- [ ] `.dockerignore` bloqueia `.env` e `*.pem`
+- [x] Script valida presença de variáveis obrigatórias
+- [x] Conexão com PostgreSQL funciona
+- [x] Credenciais **não** aparecem em logs (use PGPASSWORD, não echo)
+- [x] `.dockerignore` bloqueia `.env` e `*.pem`
+- [x] Exit code != 0 se variáveis estiverem faltando
+
+## ✅ Resultados dos Testes
+
+**Status:** APROVADO ✓
+
+### Build da Imagem
+- ✅ Imagem baseada em Alpine 3.20
+- ✅ PostgreSQL client instalado
+- ✅ Script check.sh copiado e com permissão de execução
+- ✅ Tamanho: 19.6MB (muito eficiente!)
+
+### Validação de Variáveis Obrigatórias
+- ✅ Sem DB_HOST: Erro exibido corretamente
+- ✅ Exit code != 0: Confirmado
+- ✅ Mensagens de erro direcionadas para stderr
+
+### Conexão Segura com PostgreSQL
+- ✅ Conexão bem-sucedida com credenciais corretas
+- ✅ Falha de autenticação com credenciais incorretas
+- ✅ Senha não exposta nos logs
+- ✅ PGPASSWORD usado para autenticação automática
+- ✅ Informações do banco exibidas: PostgreSQL 16.11
+
+### Segurança Implementada
+- ✅ `set -euo pipefail`: Script robusto com tratamento de erros
+- ✅ `cleanup trap`: Remove PGPASSWORD ao sair
+- ✅ Validações: Todas as variáveis verificadas antes de uso
+- ✅ Logs seguros: Senha nunca impressa
+
+### .dockerignore Configurado
+- ✅ Bloqueia `*.env`
+- ✅ Bloqueia `*.pem`
+- ✅ Proteção contra arquivos sensíveis
+
+### Como Reproduzir os Testes
+```bash
+# 1. Build da imagem
+docker build -t cofre:1 .
+
+# 2. Testar validação (deve falhar sem variáveis)
+docker run --rm cofre:1
+
+# 3. Subir o PostgreSQL do ex04
+cd ../ex04-healthcheck-compose
+docker compose up -d db
+
+# 4. Aguardar DB inicializar (15-20 segundos)
+# Então testar conexão segura
+cd ../ex05-pg-secure
+docker run --rm --network ex04-healthcheck-compose_app-network \
+  -e DB_HOST=ex04-db \
+  -e DB_USER=devops \
+  -e DB_PASS=senha123 \
+  cofre:1
+
+# 5. Testar com senha incorreta (deve falhar)
+docker run --rm --network ex04-healthcheck-compose_app-network \
+  -e DB_HOST=ex04-db \
+  -e DB_USER=devops \
+  -e DB_PASS=senhaerrada \
+  cofre:1
+
+# 6. Limpar
+cd ../ex04-healthcheck-compose
+docker compose down
+```
+
+### 🔧 Nota sobre Line Endings (Windows)
+Se o script `check.sh` apresentar erro de `pipefail` no Windows, converta os line endings:
+```powershell
+$content = Get-Content check.sh -Raw
+$content = $content -replace "`r`n", "`n"
+[System.IO.File]::WriteAllText("$PWD\check.sh", $content, [System.Text.UTF8Encoding]::new($false))
+# Depois, rebuild a imagem
+docker build -t cofre:1 .
+```
 - [ ] Exit code != 0 se variáveis estiverem faltando
 
 ## 💡 Conceitos aprendidos
