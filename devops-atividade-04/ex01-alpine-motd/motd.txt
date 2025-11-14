@@ -1,7 +1,1 @@
-╔═══════════════════════════════════════════════════════════╗
-║                                                           ║
-║   ☕ Bom dia! Café quente e build verde. ☕              ║
-║                                                           ║
-║   Bem-vindo ao container Alpine - DevOps Atividade 04    ║
-║                                                           ║
-╚═══════════════════════════════════════════════════════════╝
+Bom dia! Café quente e build verde.
