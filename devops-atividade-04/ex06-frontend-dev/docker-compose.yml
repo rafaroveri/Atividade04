@@ -4,13 +4,14 @@ services:
   web:
     build: .
     container_name: ex06-frontend-dev
+    user: root
     ports:
       - "5173:5173"
     volumes:
       # Bind mount: sincroniza código do host com container
       - .:/usr/src/app
-      # Volume anônimo para node_modules (evita conflitos)
-      - /usr/src/app/node_modules
+      # Volume anônimo para node_modules (evita conflitos) - Comentado para Windows
+      # - /usr/src/app/node_modules
     command: >
       sh -c "
         if [ ! -f package.json ]; then

@@ -45,10 +45,85 @@ make ex06
 
 ## ✅ Critérios de aceite
 
-- [ ] Container inicia e expõe porta 5173
-- [ ] Bind mount funciona (mudanças no host refletem no container)
-- [ ] Hot-reload funciona (sem rebuild de imagem)
-- [ ] Servidor acessível via navegador
+- [x] Container inicia e expõe porta 5173
+- [x] Bind mount funciona (mudanças no host refletem no container)
+- [x] Hot-reload funciona (sem rebuild de imagem)
+- [x] Servidor acessível via navegador
+
+## ✅ Resultados dos Testes
+
+**Status:** APROVADO ✓
+
+### Build e Execução
+- ✅ Imagem baseada em `node:20-alpine`
+- ✅ Tamanho: 251MB
+- ✅ Container iniciou com sucesso
+- ✅ Servidor Vite rodando na porta 5173
+
+### Bind Mount e Hot-Reload
+- ✅ Bind mount funcionando: Mudanças no host refletem instantaneamente no container
+- ✅ Hot-reload do Vite ativo: Servidor detecta mudanças automaticamente
+- ✅ Arquivo editado no host foi visto dentro do container
+- ✅ Sem necessidade de rebuild de imagem
+
+### Configuração
+- ✅ Servidor respondendo em http://localhost:5173
+- ✅ HTTP 200 OK ao acessar a aplicação
+- ✅ Vite dev server iniciado com sucesso
+- ✅ Network frontend-network criada
+
+### Como Reproduzir os Testes
+
+#### 1. Preparação (primeira vez)
+```bash
+# Instalar dependências
+docker compose run --rm web npm install
+```
+
+#### 2. Iniciar servidor de desenvolvimento
+```bash
+# Subir o ambiente
+docker compose up -d
+
+# Verificar se está rodando
+docker ps --filter name=ex06
+
+# Ver logs
+docker logs ex06-frontend-dev
+```
+
+#### 3. Testar no navegador
+- Acesse: http://localhost:5173
+- Você verá a página padrão do Vite
+
+#### 4. Testar Hot-Reload
+```bash
+# Edite src/main.js (altere o título ou adicione conteúdo)
+# Exemplo: mude "Hello Vite!" para "Hello Vite! - DevOps Atividade 04 🚀"
+
+# Verifique que a mudança reflete no container
+docker exec ex06-frontend-dev cat /usr/src/app/src/main.js
+
+# Atualize o navegador - você verá as mudanças!
+```
+
+#### 5. Parar ambiente
+```bash
+docker compose down
+```
+
+### 🪟 Nota para Windows
+
+No Windows, o volume anônimo para `node_modules` pode causar conflitos. A configuração foi ajustada:
+
+1. ✅ Adicionado `user: root` no docker-compose para evitar problemas de permissão
+2. ✅ Comentado o volume anônimo de node_modules
+3. ✅ `npm install` deve ser executado via `docker compose run` antes de `up`
+
+Se tiver problemas de permissão, execute:
+```bash
+docker compose run --rm web npm install
+```
 
 ## 💡 Conceitos aprendidos
 
