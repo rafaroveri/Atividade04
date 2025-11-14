@@ -2,25 +2,38 @@
 
 ## 🎯 Objetivo
 
-Demonstrar gestão segura de configurações usando variáveis de ambiente (.env) e arquivos de config montados como read-only.
+Demonstrar gestão segura de configurações usando variáveis de ambiente (.env) e arquivos de config montados como read-only via `configs` do Docker Compose.
 
 ## 📦 O que será criado
 
 - API Node.js que lê configurações de múltiplas fontes
-- `.env` para variáveis sensíveis (não commitado)
-- `config.yml` para configurações de aplicação
-- Endpoint `/info` que expõe configs (exceto segredos)
+- `.env` (não commitado) para segredos e variáveis sensíveis
+- `config.yml` distribuído como Docker config, montado em modo somente leitura
+- Endpoint `/info` que expõe apenas informações sanitizadas
+
+## 🗂️ Arquivos importantes
+
+| Arquivo | Descrição |
+| --- | --- |
+| `Dockerfile` | Build da API Node.js |
+| `docker-compose.yml` | Define serviço `api` com `env_file` e `configs` |
+| `.env.example` | Modelo de variáveis de ambiente (copie para `.env`) |
+| `config.yml` | Configurações não sensíveis montadas em `/etc/app/config.yml` |
+| `app.js` | Código da API com leitura segura de configs |
 
 ## 🔨 Como executar
 
 ### Preparar ambiente
 
 ```bash
-# Copie o arquivo de exemplo
-cp .env.example .env
+cd ex08-configs-seguras/
 
-# Edite .env com suas configurações (não commite!)
+# Copie o arquivo de exemplo e preencha com valores reais
+cp .env.example .env
+vim .env  # ou editor de sua preferência
 ```
+
+> ⚠️ O arquivo `.env` é lido automaticamente pelo Compose e **não deve ser commitado**.
 
 ### Iniciar API
 
@@ -30,24 +43,35 @@ docker compose up -d --build
 
 API estará disponível em: **http://localhost:8080**
 
-### Testar endpoint
+### Testar endpoint `/info`
 
 ```bash
-curl http://localhost:8080/info
+curl http://localhost:8080/info | jq
 ```
 
-Deve retornar JSON com:
-- Variáveis do `.env` (selecionadas)
-- Conteúdo do `config.yml`
-- **SEM expor** segredos completos
+A resposta deve conter:
 
-### Ver logs (não devem conter senhas!)
+- Metadados da aplicação vindos do `.env`
+- Flags e opções vindas do `config.yml`
+- Campos de segredo mascarados como `***CONFIGURED***`
 
-```bash
-docker compose logs api
-```
+### Validar que segredos não vazam em logs
 
-### Parar
+1. Gere uma requisição:
+   ```bash
+   curl http://localhost:8080/info >/dev/null
+   ```
+2. Consulte os logs do serviço:
+   ```bash
+   docker compose logs api
+   ```
+3. Verifique que os valores sensíveis aparecem apenas mascarados (`***CONFIGURED***`).
+4. Confirme que não há trechos contendo partes do segredo:
+   ```bash
+   docker compose logs api | grep -iE 'senha|secret|key' && echo "⚠️ Encontrado" || echo "✅ Limpo"
+   ```
+
+### Encerrar
 
 ```bash
 docker compose down
@@ -61,59 +85,20 @@ make ex08
 
 ## ✅ Critérios de aceite
 
-- [ ] API inicia e responde na porta 8080
-- [ ] Endpoint `/info` retorna configurações do `.env` e `config.yml`
-- [ ] Senhas/tokens **não** aparecem em logs
-- [ ] Arquivo `config.yml` montado como read-only
-- [ ] `.env` real **não** está commitado no Git
-- [ ] `.env.example` documenta variáveis necessárias
+- [x] API inicia e responde na porta 8080
+- [x] Endpoint `/info` retorna configurações do `.env` e do `config.yml`
+- [x] Segredos aparecem mascarados tanto no log quanto na resposta
+- [x] Arquivo `config.yml` montado como config read-only (`mode: "0440"`)
+- [x] `.env` real não está commitado no Git
+- [x] `.env.example` documenta variáveis necessárias
 
 ## 💡 Conceitos aprendidos
 
 - **Separação de configuração**: 12-factor app
-- Uso de `.env` vs. arquivos de config
+- Uso de `.env` vs. arquivos de config montados via Compose
 - Montagem read-only para segurança
 - Mascaramento de segredos em logs/responses
 - Diferença entre `.env.example` e `.env`
-
-## 🔒 Boas práticas de segurança
-
-### ✅ FAÇA
-
-```javascript
-// Exponha apenas o necessário
-app.get('/info', (req, res) => {
-  res.json({
-    appName: process.env.APP_NAME,
-    environment: process.env.NODE_ENV,
-    // Mascara segredos
-    databaseUrl: process.env.DB_URL ? '***CONFIGURED***' : 'NOT_SET'
-  });
-});
-```
-
-### ❌ NÃO FAÇA
-
-```javascript
-// NUNCA exponha process.env completo!
-app.get('/info', (req, res) => {
-  res.json(process.env);  // ⚠️ Expõe TODOS os segredos!
-});
-
-// NUNCA logue senhas
-console.log('Senha do DB:', process.env.DB_PASS);  // ⚠️ Perigoso!
-```
-
-## 📋 Hierarquia de configuração
-
-1. **Variáveis de ambiente** (.env): Segredos, credenciais, URLs
-2. **Arquivos de config** (config.yml): Feature flags, configurações de app
-3. **Defaults no código**: Fallbacks seguros
-
-Exemplo:
-```javascript
-const port = process.env.PORT || 8080;  // .env > default
-```
 
 ## 🔍 Estrutura de resposta `/info`
 
@@ -126,11 +111,12 @@ const port = process.env.PORT || 8080;  // .env > default
   },
   "features": {
     "demo": true,
-    "apiV2": false
+    "beta_features": false
   },
   "secrets": {
     "apiKey": "***CONFIGURED***",
-    "databaseUrl": "***CONFIGURED***"
+    "databaseUrl": "***CONFIGURED***",
+    "jwtSecret": "***CONFIGURED***"
   },
   "config": {
     "app_name": "atividade04",
@@ -141,25 +127,25 @@ const port = process.env.PORT || 8080;  // .env > default
 }
 ```
 
-## 🧪 Teste de segurança
-
-### Verificar que segredos não aparecem:
+## 🧪 Teste de segurança adicional
 
 ```bash
 # Logs não devem conter senhas
-docker compose logs api | grep -i password
-# (deve retornar vazio)
+if docker compose logs api | grep -i password; then
+  echo "⚠️ Atenção: encontrado termo sensível nos logs"
+else
+  echo "✅ Logs limpos"
+fi
 
 # Endpoint não deve expor segredos completos
-curl http://localhost:8080/info | grep -i "secret_api_key"
-# (deve aparecer mascarado: "***CONFIGURED***")
+curl http://localhost:8080/info | grep '***CONFIGURED***'
 ```
 
 ## 📝 Checklist de segurança
 
-- [ ] `.env` no `.gitignore`
-- [ ] `.env.example` commitado (valores fake)
-- [ ] `config.yml` montado como `:ro` (read-only)
-- [ ] Endpoint não expõe segredos completos
-- [ ] Logs não contêm credenciais
-- [ ] Validação de variáveis obrigatórias no startup
+- [x] `.env` no `.gitignore`
+- [x] `.env.example` commitado (valores fictícios)
+- [x] `config.yml` montado como `:ro` via `configs`
+- [x] Endpoint não expõe segredos completos
+- [x] Logs não contêm credenciais
+- [x] Validação de variáveis obrigatórias no startup

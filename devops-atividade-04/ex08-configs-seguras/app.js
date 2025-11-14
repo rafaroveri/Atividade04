@@ -5,6 +5,8 @@ import yaml from 'yaml';
 const PORT = process.env.PORT || 8080;
 const CONFIG_PATH = '/etc/app/config.yml';
 
+const maskSecret = (value) => (value ? '***CONFIGURED***' : 'NOT_SET');
+
 // ============================================
 // CARREGA CONFIGURAÇÕES DE FORMA SEGURA
 // ============================================
@@ -13,7 +15,7 @@ let config = {};
 
 try {
   const configFile = fs.readFileSync(CONFIG_PATH, 'utf8');
-  config = yaml.parse(configFile);
+  config = yaml.parse(configFile) || {};
   console.log('✅ Configurações carregadas de:', CONFIG_PATH);
 } catch (err) {
   console.warn('⚠️  Arquivo de config não encontrado, usando defaults');
@@ -31,8 +33,37 @@ for (const varName of requiredEnvVars) {
 
 // ⚠️ NÃO loga segredos!
 console.log('🔒 App Name:', process.env.APP_NAME);
-console.log('🔒 API Key:', process.env.SECRET_API_KEY ? '***CONFIGURED***' : 'NOT_SET');
-console.log('🔒 Database URL:', process.env.DATABASE_URL ? '***CONFIGURED***' : 'NOT_SET');
+console.log('🔒 API Key:', maskSecret(process.env.SECRET_API_KEY));
+console.log('🔒 Database URL:', maskSecret(process.env.DATABASE_URL));
+console.log('🔒 JWT Secret:', maskSecret(process.env.JWT_SECRET));
+
+const getAppInfo = () => ({
+  name: process.env.APP_NAME,
+  version:
+    process.env.APP_VERSION || config.version || config.app?.version || '1.0.0',
+  environment: process.env.NODE_ENV || 'development',
+});
+
+const getFeatureFlags = () => {
+  if (config.feature_flags && typeof config.feature_flags === 'object') {
+    return config.feature_flags;
+  }
+  if (config.features && typeof config.features === 'object') {
+    return config.features;
+  }
+  return {};
+};
+
+const getPublicConfig = () => {
+  const safeConfig = { ...config };
+  if (safeConfig.secrets) {
+    safeConfig.secrets = Object.keys(safeConfig.secrets).reduce((acc, key) => {
+      acc[key] = maskSecret(safeConfig.secrets[key]);
+      return acc;
+    }, {});
+  }
+  return safeConfig;
+};
 
 // ============================================
 // SERVIDOR HTTP
@@ -44,19 +75,14 @@ const server = http.createServer((req, res) => {
   // Endpoint /info: retorna configurações (mascarando segredos)
   if (req.url === '/info' && req.method === 'GET') {
     const info = {
-      app: {
-        name: process.env.APP_NAME,
-        version: process.env.APP_VERSION || '1.0.0',
-        environment: process.env.NODE_ENV || 'development',
-      },
-      features: config.feature_flags || {},
+      app: getAppInfo(),
+      features: getFeatureFlags(),
       secrets: {
-        // ✅ Mascara segredos (nunca exponha valores reais!)
-        apiKey: process.env.SECRET_API_KEY ? '***CONFIGURED***' : 'NOT_SET',
-        databaseUrl: process.env.DATABASE_URL ? '***CONFIGURED***' : 'NOT_SET',
-        jwtSecret: process.env.JWT_SECRET ? '***CONFIGURED***' : 'NOT_SET',
+        apiKey: maskSecret(process.env.SECRET_API_KEY),
+        databaseUrl: maskSecret(process.env.DATABASE_URL),
+        jwtSecret: maskSecret(process.env.JWT_SECRET),
       },
-      config: config,
+      config: getPublicConfig(),
     };
 
     res.statusCode = 200;
