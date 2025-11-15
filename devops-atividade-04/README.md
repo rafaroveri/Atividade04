@@ -69,14 +69,8 @@ Cada exercício possui seu próprio README.md com instruções detalhadas. Naveg
 - [ ] ex07: Push no registry só ocorre se `npm test` passar
 - [ ] ex08: Endpoint `/info` retorna configs do .env e config.yml
 
-##  Notas
-
-- Este é um esqueleto funcional mínimo. Expanda conforme necessário.
-- Todos os exemplos usam credenciais DEMO. **Nunca** commite `.env` real.
-- Para produção, use Docker secrets, Vault ou equivalente.
-
 ---
 
-**Autor**: [Seu Nome]  
-**Data**: Outubro 2025  
+**Autor**: Rafael Roveri  
+**Data**: Novembro 2025  
 **Disciplina**: Gerência de Configuração e DevOps
